@@ -1,6 +1,6 @@
 Geo Distance
 
-// İndex oluşturma ve Mappings ekleme
+// İndex oluşturma ve Mappings ekleme - BTK Büyük veri uygulamaları, eğitim videosundaki ip adresidir, sunucunuzun ip adresini kullanmalısınız.
 
 PUT 167.172.61.77:9200/test-geo/_search
 
