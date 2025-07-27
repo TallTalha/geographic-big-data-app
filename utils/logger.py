@@ -1,3 +1,12 @@
+# utils/logger.py
+"""
+Bu modül, uygulama genelinde kullanılacak logger'ı ayarlar.
+Logger, hem konsola hem de dosyaya loglama yapar.
+Log dosyaları, uygulamanın kök dizinindeki logs klasöründe saklanır.
+Log dosyaları, modül adıyla adlandırılır ve her modül için ayrı bir log dosyası oluşturulur.
+Loglama formatı, tarih, modül adı, log seviyesi ve mesajı içerir.
+Log dosyaları, 10 MB boyutuna ulaştığında yeni bir dosya oluşturur ve en fazla 5 yedek dosya tutar. 
+"""
 import logging
 from logging.handlers import RotatingFileHandler
 import logging.handlers
