@@ -3,8 +3,9 @@
 Bu modül, coğrafi verileri, sunucudaki elastichsearch aracına gönderir.  
 """
 from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
 from utils.logger import setup_logger
-from configs.settings import ELASTIC_HOST, ELASTIC_PORT, ELASTIC_USER, ELASTIC_PASSWORD
+from configs.settings import ELASTIC_URL
 import json
 import os
 import sys
@@ -12,6 +13,21 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 JSON_FILE = os.path.join(PROJECT_ROOT, "data", "istanbul_siteler.json")
+
+INDEX_NAME = "siteler" 
+
+MAPPING_BODY = {
+        "mappings":{
+            "properties":{
+                "stitle":{
+                    "type":"text"
+                },
+                "location":{
+                    "type":"geo_point"
+                }
+            }
+        }
+    }
 
 LOG = setup_logger("bulk_indexer")
 
@@ -29,14 +45,7 @@ def get_es_client() -> Elasticsearch | None:
         # SSH Tüneli kullandığımız için localhost'a bağlanıyoruz
         # ve -k bayrağının yaptığı gibi SSL sertifika doğrulamasını atlıyoruz.
         client = Elasticsearch(
-            hosts=[
-                  {
-                    "host": str(ELASTIC_HOST),
-                    "port": str(ELASTIC_PORT),
-                    "scheme":"https"
-                   }
-            ],
-            basic_auth=( str(ELASTIC_USER), str(ELASTIC_PASSWORD) ),
+            hosts=[ELASTIC_URL],
             verify_certs=False,
             request_timeout=60
         )
@@ -73,6 +82,7 @@ def create_index_and_mapping(client: Elasticsearch, index_name:str, mapping: dic
             LOG.warning(f"{index_name} indeksi zaten mevcut. Oluşturma adımı ATLANDI.")
     except Exception as e:
         LOG.error(f"{index_name} indeksi oluşturulurken hata: {e}", exc_info=True)
+        raise
 
 def generate_actions_from_json(json_file_path: str, index_name:str):
     """
@@ -98,11 +108,37 @@ def main():
     """
     Ana iş akışını yönetir.
     """
-    INDEX_NAME = "siteler" 
 
     es_client = get_es_client()
     if not es_client:
-        sys.exit(1) # ÇIKIŞ -> 
+        sys.exit(1) # ÇIKIŞ -> Elastich Search bağlantısı sağlanamadı.
+
+    try:
+        create_index_and_mapping(client=es_client, index_name=INDEX_NAME, mapping=MAPPING_BODY)
+    except ValueError as ve:
+        LOG.error(f"Mappings şema hatası nedeniyle, işlem sonlandırıldı: {ve}")
+        sys.exit(1) # ÇIKIŞ -> Uygun mapping şeması sağlanmadı. 
+    except Exception as e:
+        LOG.critical(f"Index oluşturma sırasındaki hatadan dolayı, işlem sonladnırıldı.")
+        sys.exit(1) # ÇIKIŞ -> Index oluşturulamadı.
+
+    try:
+        LOG.info("BULK veri yükleme başladı:")
+        success, errors= bulk(
+                client=es_client,
+                actions=generate_actions_from_json(JSON_FILE, INDEX_NAME),
+                raise_on_error=False
+        )
+        LOG.info(f"Bulk işlemi tamamlandı. Başarılı:{success}, Hatalı:{len(errors)}") # type: ignore
+        if errors:
+            LOG.warning(f"İlk 5 hata: {errors[:5]}") # type: ignore
+    except Exception as e:
+        LOG.critical(f"BULK işlemi sırasında hata:{e}", exc_info=True)
+        sys.exit(1) # ÇIKIŞ -> Yükleme sağlanamadı. 
+
+if __name__ == "__main__" :
+    main()
+
     
 
 
