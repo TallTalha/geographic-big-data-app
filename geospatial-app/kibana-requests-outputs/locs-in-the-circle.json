@@ -1,22 +1,22 @@
 // Kadıköy boğa heykeline max 500 metre uzaklıkta siteleri arama girdisi:
 GET /siteler/_search
-{
-  "query": {
-    "bool": {
-      "filter": [
-        {
-          "geo_distance": {
-            "distance": "500m",
-            "location": {
-              "lat": 40.99046,
-              "lon": 29.02915
+  {
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "geo_distance": {
+              "distance": "500m",
+              "location": {
+                "lat": 40.99046,
+                "lon": 29.02915
+              }
             }
           }
-        }
-      ]
+        ]
+      }
     }
   }
-}
 
 // Arama sonucunda dönen örnek çıktı:
 {
