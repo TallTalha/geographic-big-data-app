@@ -1,0 +1,64 @@
+// Kadıköy boğa heykeline max 500 metre uzaklıkta siteleri arama girdisi:
+GET /siteler/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "geo_distance": {
+            "distance": "500m",
+            "location": {
+              "lat": 40.99046,
+              "lon": 29.02915
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+// Arama sonucunda dönen örnek çıktı:
+{
+  "took": 3,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 2,
+      "relation": "eq"
+    },
+    "max_score": 0,
+    "hits": [
+      {
+        "_index": "siteler",
+        "_id": "tn3GVJgB0A4VjMAFSz9f",
+        "_score": 0,
+        "_source": {
+          "stitle": "Göksel Sitesi",
+          "location": {
+            "lat": 40.990752,
+            "lon": 29.029238
+          }
+        }
+      },
+      {
+        "_index": "siteler",
+        "_id": "oX3GVJgB0A4VjMAFS0Bf",
+        "_score": 0,
+        "_source": {
+          "stitle": "Miesha House",
+          "location": {
+            "lat": 40.98688,
+            "lon": 29.03185
+          }
+        }
+      }
+    ]
+  }
+}

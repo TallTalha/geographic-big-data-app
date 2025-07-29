@@ -1,0 +1,55 @@
+// Kadıköy boğa heykeline en yakın siteyi arama girdisi: 
+GET /siteler/_search
+{
+  "size": 1,
+  "query": {
+    "match_all": {}
+  },
+  "sort": [
+    {
+      "_geo_distance": {
+        "location": {
+          "lat": 40.9904,
+          "lon": 29.0283
+        },
+        "order": "asc",
+        "unit": "m"
+      }
+    }
+  ]
+}
+// Arama sonucunda dönen örnek çıktı:
+{
+  "took": 31,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 10000,
+      "relation": "gte"
+    },
+    "max_score": null,
+    "hits": [
+      {
+        "_index": "siteler",
+        "_id": "tn3GVJgB0A4VjMAFSz9f",
+        "_score": null,
+        "_source": {
+          "stitle": "Göksel Sitesi",
+          "location": {
+            "lat": 40.990752,
+            "lon": 29.029238
+          }
+        },
+        "sort": [
+          87.9167305938363
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+// Merkezi Kadıköy boğa heykeli ve kenar uzunlukları 250m olan kare alanda arama girdisi: 
+GET /siteler/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "geo_bounding_box": {
+            "location": {
+              "top_left": {
+                "lat": 40.99266572024146,
+                "lon": 29.02599726210135
+              },
+              "bottom_right": {
+                "lat":  40.988293065567746,
+                "lon":  29.032042118695756
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+// Arama sonucunda dönen örnek çıktı:
+{
+  "took": 1,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 1,
+      "relation": "eq"
+    },
+    "max_score": 0,
+    "hits": [
+      {
+        "_index": "siteler",
+        "_id": "tn3GVJgB0A4VjMAFSz9f",
+        "_score": 0,
+        "_source": {
+          "stitle": "Göksel Sitesi",
+          "location": {
+            "lat": 40.990752,
+            "lon": 29.029238
+          }
+        }
+      }
+    ]
+  }
+}

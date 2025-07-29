@@ -1,0 +1,55 @@
+//Kadıköyde rastgele bir polygon alanda KAdıköy ismi geçen siteleri arama girdisi: 
+GET /siteler/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "geo_bounding_box": {
+            "location": {
+              "top_left": { "lat": 41.0, "lon": 29.0 },
+              "bottom_right": { "lat": 40.98, "lon": 29.05 }
+            }
+          }
+        },
+        {
+          "match": {
+            "stitle": "Kadıköy"
+          }
+        }
+      ]
+    }
+  }
+}
+// Arama sonucunda dönen örnek çıktı:
+{
+  "took": 1,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 1,
+      "relation": "eq"
+    },
+    "max_score": 0,
+    "hits": [
+      {
+        "_index": "siteler",
+        "_id": "133GVJgB0A4VjMAFS0Bf",
+        "_score": 0,
+        "_source": {
+          "stitle": "Kentplus Kadıköy",
+          "location": {
+            "lat": 40.991178,
+            "lon": 29.045471
+          }
+        }
+      }
+    ]
+  }
+}
