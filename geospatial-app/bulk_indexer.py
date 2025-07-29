@@ -5,7 +5,7 @@ Bu modül, coğrafi verileri, sunucudaki elastichsearch aracına gönderir.
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from utils.logger import setup_logger
-from configs.settings import ELASTIC_URL
+from configs.settings import ELASTIC_USER, ELASTIC_PASSWORD, ELASTIC_HOST, ELASTIC_PORT, ELASTIC_FINGERPRINT
 import json
 import os
 import sys
@@ -41,14 +41,20 @@ def get_es_client() -> Elasticsearch | None:
     """
     try:
         LOG.info("Elastichsearch aracına bağlanılıyor...")
-
         # SSH Tüneli kullandığımız için localhost'a bağlanıyoruz
         # ve -k bayrağının yaptığı gibi SSL sertifika doğrulamasını atlıyoruz.
         client = Elasticsearch(
-            hosts=[ELASTIC_URL],
-            verify_certs=False,
+            hosts=[f"https://{ELASTIC_HOST}:{ELASTIC_PORT}"],
+            # Kimlik bilgilerini 'basic_auth' parametresiyle ayrı ve güvenli bir şekilde veriyoruz
+            basic_auth=(str(ELASTIC_USER), str(ELASTIC_PASSWORD)),
+
+            # verify_certs=False yerine, parmak izi ile doğrulama yapıyoruz.
+            # Bu, "man-in-the-middle" saldırılarına karşı koruma sağlar.
+            ssl_assert_fingerprint= str(ELASTIC_FINGERPRINT),
             request_timeout=60
         )
+        print(client)
+        print(str(client.info()))
         if client.ping():
             LOG.info("Elastichsearch bağlantısı başarılı.")
             return client
